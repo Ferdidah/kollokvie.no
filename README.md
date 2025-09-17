@@ -1,20 +1,6 @@
 # Kollokvie.no
 
-**AI-drevet plattform som strukturerer og effektiviserer kollokviegrupper.**
-
-Kollokvie.no løser organiserings- og strukturutfordringene i studentkollokviegrupper ved å kombinere smarte oppgavelister med AI som fasiliterer diskusjoner, sammenstiller notater, og sikrer at alle bidrar til gruppens kollektive læring.
-Kjerneverdien er å transformere kollokviegrupper fra uformelle "les sammen"-sesjoner til strukturerte, AI-støttede læringsgrupper som faktisk leverer på sitt potensial!
-
-
-
-
-
-
-Kjernefunksjoner
-
-
-
-
+**AI-drevet plattform som strukturerer, effektiviserer og fasiliterer kollokviegrupper.**
 
 ## 🎯 Hva vi løser
 
