@@ -3,4 +3,7 @@ venv/
 __pycache__/
 *.pyc
 
+# Documentation and learning folders (local only)
+DOCS/
+learning/
 
