@@ -65,5 +65,4 @@ describe('NotesSection', () => {
     expect(screen.getByText('✏️ Rediger')).toBeInTheDocument()
     expect(screen.getByText('🗑️ Slett')).toBeInTheDocument()
   })
-
 })
