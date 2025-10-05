@@ -15,8 +15,8 @@ const config = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   testMatch: [
-    '<rootDir>/__tests__/**/*.(spec|test).[jt]s?(x)',
-    '<rootDir>/(app|src|app/src)/**/?(*.)+(spec|test).[jt]s?(x)',
+    '<rootDir>/src/**/__tests__/**/*.(test|spec).[jt]s?(x)',
+    '<rootDir>/src/**/*.(test|spec).[jt]s?(x)',
   ],
   clearMocks: true,
 }
