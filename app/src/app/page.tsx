@@ -53,7 +53,7 @@ export default function Page() {
               href="/login"  
               className="inline-flex items-center justify-center py-4 px-8 rounded-2xl text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              <span>Kom i gang</span>
+              <span>Logg inn</span>
               <svg className="ml-2 w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
