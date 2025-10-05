@@ -14,36 +14,36 @@ export default function Page() {
           </div>
           
           <h1 className="text-5xl font-black text-black mb-4 tracking-tight">
-            Simple Notes & Todos
+            Kollokvie.no
           </h1>
           <p className="text-xl text-black mb-12 max-w-2xl mx-auto leading-relaxed">
-            Enkel, kraftig og sikker notater og todo-liste app bygget med moderne teknologi
+            Enkel, kraftig og sikker notater og todo-liste app
           </p>
           
           {/* Feature Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
-              <div className="text-2xl mb-3">✅</div>
-              <h3 className="font-bold text-black text-lg mb-2">Next.js + TypeScript</h3>
-              <p className="text-black text-sm">Moderne React framework med type-sikkerhet</p>
+              <div className="text-2xl mb-3">📅</div>
+              <h3 className="font-bold text-black text-lg mb-2">Organisering</h3>
+              <p className="text-black text-sm">Organiser notatene og todosene dine</p>
             </div>
             
             <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
               <div className="text-2xl mb-3">🔐</div>
-              <h3 className="font-bold text-black text-lg mb-2">Supabase Auth</h3>
-              <p className="text-black text-sm">Sikker autentisering og brukerbehandling</p>
+              <h3 className="font-bold text-black text-lg mb-2">Oversiktlig</h3>
+              <p className="text-black text-sm">Ha alt på en plass</p>
             </div>
             
             <div className="bg-purple-50 border border-purple-200 rounded-2xl p-6">
               <div className="text-2xl mb-3">🗄️</div>
-              <h3 className="font-bold text-black text-lg mb-2">Real-time Database</h3>
-              <p className="text-black text-sm">Synkroniserte data på tvers av enheter</p>
+              <h3 className="font-bold text-black text-lg mb-2">Samarbeid</h3>
+              <p className="text-black text-sm">Jobb sammen mot en mål</p>
             </div>
             
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
               <div className="text-2xl mb-3">📝</div>
-              <h3 className="font-bold text-black text-lg mb-2">Cloud Storage</h3>
-              <p className="text-black text-sm">Dine notater lagres trygt i skyen</p>
+              <h3 className="font-bold text-black text-lg mb-2">Delegering</h3>
+              <p className="text-black text-sm">Deleger oppgaver innad i gruppen</p>
             </div>
           </div>
 
