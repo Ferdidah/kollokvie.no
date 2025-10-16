@@ -33,7 +33,7 @@ export default async function DashboardPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-black text-black tracking-tight">Profile</h1>
-          <p className="mt-3 text-lg text-black font-medium">Hei, {user.email?.split('@')[0]} 👋</p>
+          <p className="mt-3 text-lg text-black font-medium">Hei, {user.email?.split('@')[0]} !</p>
         </div>
         
         {/* Stats Overview */}
