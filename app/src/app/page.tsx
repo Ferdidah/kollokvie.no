@@ -17,7 +17,7 @@ export default function Page() {
             Kollokvie.no
           </h1>
           <p className="text-xl text-black mb-12 max-w-2xl mx-auto leading-relaxed">
-            Enkel, kraftig og sikker notater og todo-liste app
+            AI-drevet plattform som strukturerer, effektiviserer og fasiliterer kollokviegrupper
           </p>
           
           {/* Feature Grid */}
@@ -60,10 +60,10 @@ export default function Page() {
             </Link>
             
             <Link
-              href="/dashboard"
+              href="/emner"
               className="inline-flex items-center justify-center py-4 px-8 rounded-2xl text-lg font-bold text-black bg-white border-2 border-gray-200 hover:border-indigo-300 hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              Se Dashboard
+              Se Mine Emner
             </Link>
           </div>
         </div>
