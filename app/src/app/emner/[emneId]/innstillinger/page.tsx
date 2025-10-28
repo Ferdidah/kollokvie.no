@@ -1,4 +1,47 @@
-export default function SettingsPage() {
+import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
+import { notFound } from 'next/navigation'
+import { EmneDeletion } from '@/components/emner/EmneDeletion'
+
+interface SettingsPageProps {
+  params: Promise<{
+    emneId: string
+  }>
+}
+
+export default async function SettingsPage({ params }: SettingsPageProps) {
+  const { emneId } = await params
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    notFound()
+  }
+
+  // Fetch emne details
+  const { data: emne, error: emneError } = await supabase
+    .from('emne')
+    .select('*')
+    .eq('id', emneId)
+    .single()
+
+  if (emneError || !emne) {
+    notFound()
+  }
+
+  // Check if user is the creator
+  const isCreator = emne.created_by === user.id
+
+  // Fetch membership info for additional checks
+  const { data: membership } = await supabase
+    .from('emne_members')
+    .select('role')
+    .eq('emne_id', emneId)
+    .eq('user_id', user.id)
+    .single()
+
   return (
     <div>
       <div className="mb-8">
@@ -8,17 +51,50 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <div className="text-center py-16">
-        <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+      <div className="max-w-4xl space-y-8">
+        {/* Emne Information */}
+        <div className="bg-white border-2 border-blue-100 shadow-xl rounded-2xl p-6">
+          <h2 className="text-xl font-bold text-black mb-4">Emneinformasjon</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Tittel</label>
+              <p className="text-black font-medium">{emne.title}</p>
+            </div>
+            {emne.code && (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Emnekode</label>
+                <p className="text-black font-medium">{emne.code}</p>
+              </div>
+            )}
+            {emne.description && (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Beskrivelse</label>
+                <p className="text-black font-medium">{emne.description}</p>
+              </div>
+            )}
+            {emne.semester && (
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Semester</label>
+                <p className="text-black font-medium">{emne.semester}</p>
+              </div>
+            )}
+          </div>
         </div>
-        <h3 className="text-xl font-bold text-black mb-2">Innstillinger kommer snart</h3>
-        <p className="text-black font-medium">
-          Her vil du kunne konfigurere emne-innstillinger, AI-arbeidsflyt og semesterplaner.
-        </p>
+
+        {/* AI Settings */}
+        <div className="bg-white border-2 border-blue-100 shadow-xl rounded-2xl p-6">
+          <h2 className="text-xl font-bold text-black mb-4">AI-innstillinger</h2>
+          <div className="text-center py-8 text-gray-500">
+            <p>AI-innstillinger kommer snart</p>
+          </div>
+        </div>
+
+        {/* Delete Emne */}
+        <EmneDeletion 
+          emneId={emne.id} 
+          emneTitle={emne.title}
+          isCreator={isCreator}
+        />
       </div>
     </div>
   )
