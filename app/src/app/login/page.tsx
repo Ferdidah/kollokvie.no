@@ -9,6 +9,7 @@ export default function LoginPage() {
   const supabase = createClient()
   const router = useRouter()
   
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState<User | null>(null)
@@ -48,7 +49,7 @@ export default function LoginPage() {
       
       // User will be redirected by the auth state change listener
     } catch (err: any) {
-      alert(err.message ?? 'Error signing in')
+      alert(err.message ?? 'Feil ved innlogging')
     } finally {
       setLoading(false)
     }
@@ -59,19 +60,26 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { error } = await supabase.auth.signUp({ 
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
+          data: { username },
           emailRedirectTo: `${window.location.origin}/auth/callback`
         }
       })
       
       if (error) throw error
-      
-      alert('Check your email for confirmation link!')
+
+      if (data?.user) {
+        await supabase.from('profiles').insert([
+          { id: data.user.id, username }
+        ])
+      }
+
+      alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
     } catch (err: any) {
-      alert(err.message ?? 'Error signing up')
+      alert(err.message ?? 'Feil ved registrering')
     } finally {
       setLoading(false)
     }
@@ -84,7 +92,7 @@ export default function LoginPage() {
       setUser(null)
       router.refresh()
     } catch (err: any) {
-      alert(err.message ?? 'Error signing out')
+      alert(err.message ?? 'Feil ved utlogging')
     } finally {
       setLoading(false)
     }
@@ -103,6 +111,9 @@ export default function LoginPage() {
             </div>
             <h2 className="text-3xl font-black text-black mb-3">Velkommen!</h2>
             <p className="text-lg text-black font-medium">Logget inn som: <span className="font-bold">{user.email}</span></p>
+            {user.user_metadata.username && (
+              <p className="text-sm text-gray-600 mt-2">Brukernavn: <span className="font-semibold">{user.user_metadata.username}</span></p>
+            )}
           </div>
           
           <div className="space-y-4">
@@ -150,8 +161,8 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h2 className="text-4xl font-black text-black mb-3">Simple Notes & Todos</h2>
-          <p className="text-lg text-black font-medium">Enkel og sikker notater app</p>
+          <h2 className="text-4xl font-black text-black mb-3">Notes & Todos</h2>
+          <p className="text-lg text-black font-medium">Enkel og sikker notat-app</p>
         </div>
 
         {/* Mode Toggle */}
@@ -180,6 +191,23 @@ export default function LoginPage() {
 
         {/* Form */}
         <form onSubmit={mode === 'signin' ? handleSignIn : handleSignUp} className="space-y-6">
+          {mode === 'signup' && (
+          <div>
+            <label htmlFor="username" className="block text-sm font-bold text-black mb-2">
+              Brukernavn
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="block w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-black font-medium placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200"
+              placeholder="Ditt Brukernavn"
+            />
+          </div>
+          )}
+
           <div>
             <label htmlFor="email" className="block text-sm font-bold text-black mb-2">
               E-post
