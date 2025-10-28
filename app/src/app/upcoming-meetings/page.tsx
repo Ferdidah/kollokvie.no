@@ -1,4 +1,4 @@
-export default function KommendeMoterPage() {
+export default function UpcomingMeetingsPage() {
   return (
     <div>
       <div className="mb-8">
