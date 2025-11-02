@@ -2,7 +2,6 @@ import { createClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import GlobalNav from '@/components/navigation/GlobalNav'
 import type { Emne } from '@/types/database'
 
 export default async function EmnerPage() {
@@ -39,9 +38,6 @@ export default async function EmnerPage() {
 
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
-      <div className="w-full flex-none md:w-64">
-        <GlobalNav />
-      </div>
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12">
         {/* Header */}
       <div className="flex items-center justify-between mb-8">

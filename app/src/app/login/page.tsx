@@ -60,25 +60,49 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signUp({ 
-        email, 
-        password,
-        options: {
-          data: { username },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
-        }
-      })
-      
-      if (error) throw error
+      //Check for existing username
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .maybeSingle()
 
-      if (data?.user) {
-        await supabase.from('profiles').insert([
-          { id: data.user.id, username }
-        ])
+      if (existingProfile) {
+        alert('Brukernavnet er allerede tatt. Vennligst velg et annet.')
+        setLoading(false)
+        return
+    }
+
+    //Create the authenication user
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
       }
+    })
+
+    if (error) throw error
+
+    if (data?.user) {
+      //Create the profile record
+      const { error: profileError } = await supabase.from('profiles').insert([
+        {
+          id: data.user.id,
+          username,
+          email
+        }
+      ])
+
+      if (profileError) {
+        console.error('Feil ved oppretting av profil:', profileError)
+        alert(`Feil ved oppretting av profil: ${profileError.message}`)
+      }
+    }
 
       alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
     } catch (err: any) {
+      console.error('Registreringsfeil:', err)
       alert(err.message ?? 'Feil ved registrering')
     } finally {
       setLoading(false)
@@ -111,8 +135,8 @@ export default function LoginPage() {
             </div>
             <h2 className="text-3xl font-black text-black mb-3">Velkommen!</h2>
             <p className="text-lg text-black font-medium">Logget inn som: <span className="font-bold">{user.email}</span></p>
-            {user.user_metadata.username && (
-              <p className="text-sm text-gray-600 mt-2">Brukernavn: <span className="font-semibold">{user.user_metadata.username}</span></p>
+            {profile?.username && (
+              <p className="text-sm text-gray-600 mt-2">Brukernavn: <span className="font-semibold">{profile?.username}</span></p>
             )}
           </div>
           

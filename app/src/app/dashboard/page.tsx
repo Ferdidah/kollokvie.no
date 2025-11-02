@@ -16,6 +16,17 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
+  //Fetch user's profile information
+  const {data: profile, error: profileError} = await supabase
+    .from('profiles')
+    .select('username, email')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError) {
+    console.error('Kunne ikke hente profil:', profileError)
+  }
+
   // Fetch user's notes and todos
   const { data: notes, error: notesError } = await supabase
     .from('notes')
@@ -36,7 +47,7 @@ export default async function DashboardPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-black text-black tracking-tight">Dashboard</h1>
-          <p className="mt-3 text-lg text-black font-medium">Hei, {user.email?.split('@')[0]} 👋</p>
+          <p className="mt-3 text-lg text-black font-medium">Hei, {profile?.username || user.email?.split('@')[0]} 👋</p>
         </div>
 
         {/* Stats Overview */}

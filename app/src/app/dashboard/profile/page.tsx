@@ -14,6 +14,13 @@ export default async function ProfilePage() {
     redirect('/login')
   }
 
+  // Fetch user's profile information
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('username, email')
+    .eq('id', user.id)
+    .single()
+
   // Fetch user's emne memberships for stats
   const { data: emneMemberships } = await supabase
     .from('emne_members')
@@ -47,8 +54,12 @@ export default async function ProfilePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Brukernavn</label>
+                <p className="text-black font-medium">{profile?.username || 'Ingen brukernavn satt'}</p>
+              </div>
+              <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">E-post</label>
-                <p className="text-black font-medium">{user.email}</p>
+                <p className="text-black font-medium">{profile?.email || 'Ingen e-post satt'}</p>
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Bruker-ID</label>
