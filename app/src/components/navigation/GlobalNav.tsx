@@ -60,7 +60,7 @@ export default function GlobalNav() {
           </Link>
           
           <Link
-            href="/mine-bidrag"
+            href="/dashboard/mine-bidrag"
             className="flex items-center px-4 py-3 text-base font-bold text-black rounded-2xl hover:bg-emerald-50 hover:border-emerald-200 border-2 border-transparent transition-all duration-200 group"
           >
             <div className="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors duration-200">
@@ -80,7 +80,7 @@ export default function GlobalNav() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            Innstillinger
+            Profil
           </Link>
         </nav>
 

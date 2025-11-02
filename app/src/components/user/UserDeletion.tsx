@@ -28,12 +28,14 @@ export function UserDeletion({ userId, userEmail }: UserDeletionProps) {
     setError(null)
 
     try {
-      // Use the RPC function to safely delete all user data
-      const { error: deleteError } = await supabase.rpc('delete_user_account')
+      const response = await fetch('/api/user/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      })
 
-      if (deleteError) {
-        throw new Error(`Feil ved sletting av brukerdata: ${deleteError.message}`)
-      }
+      const data = await response.json()
+      if (!response.ok) { throw new Error(data.error || 'Noe gikk galt ved sletting av bruker') }
 
       // Sign out and redirect
       await supabase.auth.signOut()

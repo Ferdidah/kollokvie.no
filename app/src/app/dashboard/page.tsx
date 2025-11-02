@@ -15,6 +15,17 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
+  // Fetch user profile
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', user.id)
+    .single()
+
+    if (profileError) {
+    console.error('Error fetching user profile:', profileError)
+  }
+
   // Fetch user's emne memberships
   const { data: emneMemberships, error: membershipsError } = await supabase
     .from('emne_members')
@@ -76,7 +87,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-black text-black tracking-tight">Dashboard</h1>
-          <p className="mt-3 text-lg text-black font-medium">Hei, {user.email?.split('@')[0]} 👋</p>
+          <p className="mt-3 text-lg text-black font-medium">Hei, {profile?.username || user.email?.split('@')[0]} 👋</p>
         </div>
         <Link href="/dashboard/emner/new">
           <button className="inline-flex items-center px-6 py-3 border-2 border-transparent shadow-lg text-base font-bold rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">

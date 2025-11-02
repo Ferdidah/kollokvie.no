@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<{ username: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
 
@@ -34,6 +35,26 @@ export default function LoginPage() {
       listener?.subscription?.unsubscribe()
     }
   }, [supabase, router])
+
+  useEffect(() => {
+    if (!user) return;
+
+    async function fetchProfile() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .maybeSingle()
+      
+      if (error) {
+        console.error('Error fetching profile:', error)
+      } else {
+        setProfile(data)
+      }
+    }
+
+    fetchProfile()
+  }, [user])
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault()
@@ -60,21 +81,35 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      //Check for existing username
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .maybeSingle()
+      
+      if (existingProfile) {
+        alert('Brukernavnet er allerede tatt. Vennligst velg et annet.')
+        return
+      }
+
+      //Create user
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
-          data: { username },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          data: { username } // Store username in user_metadata
         }
-      })
-      
+      })  
+
       if (error) throw error
 
-      // Profile will be created automatically by database trigger (if profiles table exists)
+      await supabase.from('profiles').insert({ id: data.user?.id, username })
+
       // Username is also stored in user_metadata
       alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
     } catch (err: any) {
+      console.error('Registreringsfeil:', err)
       alert(err.message ?? 'Feil ved registrering')
     } finally {
       setLoading(false)
@@ -107,8 +142,8 @@ export default function LoginPage() {
             </div>
             <h2 className="text-3xl font-black text-black mb-3">Velkommen!</h2>
             <p className="text-lg text-black font-medium">Logget inn som: <span className="font-bold">{user.email}</span></p>
-            {user.user_metadata.username && (
-              <p className="text-sm text-gray-600 mt-2">Brukernavn: <span className="font-semibold">{user.user_metadata.username}</span></p>
+            {profile?.username && (
+              <p className="text-sm text-gray-600 mt-2">Brukernavn: <span className="font-semibold">{profile?.username}</span></p>
             )}
           </div>
           
