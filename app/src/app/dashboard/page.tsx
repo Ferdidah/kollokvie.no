@@ -15,16 +15,13 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // Fetch user profile
-  const { data: profile, error: profileError } = await supabase
+  // Fetch user profile (optional - fallback to email if not available)
+  const { data: profile } = await supabase
     .from('profiles')
     .select('username')
     .eq('id', user.id)
     .single()
-
-    if (profileError) {
-    console.error('Error fetching user profile:', profileError)
-  }
+    // Silently handle errors - profile is optional, we use email as fallback
 
   // Fetch user's emne memberships
   const { data: emneMemberships, error: membershipsError } = await supabase
