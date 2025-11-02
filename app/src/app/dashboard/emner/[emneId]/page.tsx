@@ -4,6 +4,9 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Emne } from '@/types/database'
 
+// Disable static caching for this page to ensure member counts are fresh
+export const dynamic = 'force-dynamic'
+
 interface EmneDashboardPageProps {
   params: Promise<{
     emneId: string
@@ -55,15 +58,27 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
     .limit(1)
     .single()
 
-  // Fetch user's tasks for this emne
-  const { data: userTasks } = await supabase
+  // Fetch total meetings count
+  const { data: allMeetings, error: meetingsCountError } = await supabase
+    .from('meetings')
+    .select('id')
+    .eq('emne_id', emneId)
+  
+  const meetingsCount = allMeetings?.length || 0
+
+  // Fetch all tasks for this emne (both personal and shared - all members can see all tasks)
+  const { data: allTasks, error: tasksError } = await supabase
     .from('tasks')
     .select('*')
     .eq('emne_id', emneId)
-    .eq('user_id', user.id)
-    .in('status', ['todo', 'in_progress'])
     .order('created_at', { ascending: false })
-    .limit(5)
+    .limit(10)
+
+  // Separate tasks into categories
+  const userTasks = allTasks?.filter(t => t.user_id === user.id && t.status !== 'completed') || []
+  const sharedTasks = allTasks?.filter(t => t.user_id === null && t.status !== 'completed') || []
+  const completedTasks = allTasks?.filter(t => t.status === 'completed').length || 0
+  const totalActiveTasks = allTasks?.filter(t => t.status !== 'completed').length || 0
 
   // Fetch recent contributions
   const { data: recentContributions } = await supabase
@@ -82,6 +97,19 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
     .limit(1)
     .single()
 
+  // Fetch member count - get all members and count them
+  // The creator should already be included since create_emne_with_membership adds them
+  const { data: allMembers, error: membersError } = await supabase
+    .from('emne_members')
+    .select('id')
+    .eq('emne_id', emneId)
+  
+  if (membersError) {
+    console.error('Error fetching member count:', membersError)
+  }
+  
+  const memberCount = allMembers?.length || 0
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
@@ -94,27 +122,6 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
         </p>
       </div>
 
-      {/* Auth Success Indicator */}
-      <div className="bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-200 rounded-2xl p-6 mb-8">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <svg className="h-6 w-6 text-emerald-600" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-          </div>
-          <div className="ml-4">
-            <h3 className="text-lg font-bold text-black">
-              Emne Aktivt!
-            </h3>
-            <p className="text-black font-medium mt-1">
-              Du er medlem av denne kollokvie-gruppen
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white border-2 border-blue-100 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-200">
@@ -125,7 +132,7 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
               </svg>
             </div>
             <h3 className="text-sm font-bold text-black uppercase tracking-wide">Medlemmer</h3>
-            <p className="text-2xl font-black text-black">4</p>
+            <p className="text-2xl font-black text-black">{memberCount || 0}</p>
           </div>
         </div>
 
@@ -136,8 +143,8 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
             </div>
-            <h3 className="text-sm font-bold text-black uppercase tracking-wide">Dine Oppgaver</h3>
-            <p className="text-2xl font-black text-black">{userTasks?.length || 0}</p>
+            <h3 className="text-sm font-bold text-black uppercase tracking-wide">Aktive Oppgaver</h3>
+            <p className="text-2xl font-black text-black">{totalActiveTasks}</p>
           </div>
         </div>
 
@@ -161,7 +168,7 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
               </svg>
             </div>
             <h3 className="text-sm font-bold text-black uppercase tracking-wide">Møter</h3>
-            <p className="text-2xl font-black text-black">3</p>
+            <p className="text-2xl font-black text-black">{meetingsCount}</p>
           </div>
         </div>
       </div>
@@ -173,7 +180,7 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-black">Neste Møte</h2>
             {nextMeeting && (
-              <Link href={`/emner/${emneId}/mote/${nextMeeting.id}`}>
+              <Link href={`/dashboard/emner/${emneId}/mote/${nextMeeting.id}`}>
                 <button className="inline-flex items-center px-3 py-2 border-2 border-gray-300 shadow-lg text-sm font-bold rounded-xl text-black bg-white hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                   Gå til møte
                 </button>
@@ -214,9 +221,104 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
               <p className="text-gray-600 font-medium mb-4">
                 Planlegg ditt første møte for å komme i gang
               </p>
+              <Link href={`/dashboard/emner/${emneId}/mote/new`}>
+                <button className="inline-flex items-center px-3 py-2 border-2 border-gray-300 shadow-lg text-sm font-bold rounded-xl text-black bg-white hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                  Planlegg møte
+                </button>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Tasks Overview */}
+        <div className="bg-white border-2 border-purple-100 shadow-xl rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-black">Oppgaver</h2>
+            <Link href={`/dashboard/emner/${emneId}/oppgaver`}>
               <button className="inline-flex items-center px-3 py-2 border-2 border-gray-300 shadow-lg text-sm font-bold rounded-xl text-black bg-white hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
-                Planlegg møte
+                Se alle
               </button>
+            </Link>
+          </div>
+
+          {totalActiveTasks > 0 ? (
+            <div className="space-y-3">
+              {userTasks.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold text-black mb-2">Mine oppgaver</h3>
+                  <div className="space-y-2">
+                    {userTasks.slice(0, 3).map((task) => (
+                      <div key={task.id} className="bg-purple-50 border-2 border-purple-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={false}
+                              readOnly
+                              className="w-4 h-4 text-purple-600 border-gray-300 rounded"
+                            />
+                            <span className="font-bold text-black text-sm">{task.title}</span>
+                          </div>
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${
+                            task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {task.priority === 'high' ? 'Høy' : task.priority === 'medium' ? 'Medium' : 'Lav'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {sharedTasks.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold text-black mb-2">Felles oppgaver</h3>
+                  <div className="space-y-2">
+                    {sharedTasks.slice(0, 3).map((task) => (
+                      <div key={task.id} className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={false}
+                              readOnly
+                              className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+                            />
+                            <span className="font-bold text-black text-sm">{task.title}</span>
+                          </div>
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${
+                            task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                            task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                          }`}>
+                            {task.priority === 'high' ? 'Høy' : task.priority === 'medium' ? 'Medium' : 'Lav'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <svg className="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-black mb-2">Ingen oppgaver ennå</h3>
+              <p className="text-gray-600 font-medium mb-4">
+                Opprett din første oppgave for å komme i gang
+              </p>
+              <Link href={`/dashboard/emner/${emneId}/oppgaver`}>
+                <button className="inline-flex items-center px-3 py-2 border-2 border-gray-300 shadow-lg text-sm font-bold rounded-xl text-black bg-white hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
+                  Opprett oppgave
+                </button>
+              </Link>
             </div>
           )}
         </div>
@@ -225,7 +327,7 @@ export default async function EmneDashboardPage({ params }: EmneDashboardPagePro
         <div className="bg-white border-2 border-blue-100 shadow-xl rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-black">Kunnskapsbase</h2>
-            <Link href={`/emner/${emneId}/kunnskapsbank`}>
+            <Link href={`/dashboard/emner/${emneId}/kunnskapsbank`}>
               <button className="inline-flex items-center px-3 py-2 border-2 border-gray-300 shadow-lg text-sm font-bold rounded-xl text-black bg-white hover:bg-gray-50 hover:border-gray-400 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200">
                 Se alle
               </button>

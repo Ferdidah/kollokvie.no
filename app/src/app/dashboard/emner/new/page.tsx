@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import GlobalNav from '@/components/navigation/GlobalNav'
 
 export default function NewEmnePage() {
   const router = useRouter()
@@ -52,7 +51,7 @@ export default function NewEmnePage() {
              }
 
       // Redirect to the new emne dashboard
-      router.push(`/emner/${emneId}`)
+      router.push(`/dashboard/emner/${emneId}`)
       
     } catch (error: any) {
       console.error('Error creating emne:', error)
@@ -63,12 +62,7 @@ export default function NewEmnePage() {
   }
 
   return (
-    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
-      <div className="w-full flex-none md:w-64">
-        <GlobalNav />
-      </div>
-      <div className="flex-grow p-6 md:overflow-y-auto md:p-12">
-        <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-black text-black tracking-tight">Opprett nytt emne</h1>
@@ -194,8 +188,6 @@ export default function NewEmnePage() {
               og begynne å bygge opp gruppens kunnskapsbase sammen.
             </p>
           </div>
-        </div>
-      </div>
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ export function EmneNav({ emne }: EmneNavProps) {
   
   const navItems = [
     {
-      href: `/emner/${emne.id}`,
+      href: `/dashboard/emner/${emne.id}`,
       label: 'Oversikt',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,7 +24,7 @@ export function EmneNav({ emne }: EmneNavProps) {
       color: 'blue'
     },
     {
-      href: `/emner/${emne.id}/mote`,
+      href: `/dashboard/emner/${emne.id}/mote`,
       label: 'Møter',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +34,7 @@ export function EmneNav({ emne }: EmneNavProps) {
       color: 'purple'
     },
     {
-      href: `/emner/${emne.id}/kunnskapsbank`,
+      href: `/dashboard/emner/${emne.id}/kunnskapsbank`,
       label: 'Kunnskapsbank',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@ export function EmneNav({ emne }: EmneNavProps) {
       color: 'emerald'
     },
     {
-      href: `/emner/${emne.id}/oppgaver`,
+      href: `/dashboard/emner/${emne.id}/oppgaver`,
       label: 'Oppgaver',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +54,7 @@ export function EmneNav({ emne }: EmneNavProps) {
       color: 'amber'
     },
     {
-      href: `/emner/${emne.id}/medlemmer`,
+      href: `/dashboard/emner/${emne.id}/medlemmer`,
       label: 'Medlemmer',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +64,7 @@ export function EmneNav({ emne }: EmneNavProps) {
       color: 'indigo'
     },
     {
-      href: `/emner/${emne.id}/innstillinger`,
+      href: `/dashboard/emner/${emne.id}/innstillinger`,
       label: 'Innstillinger',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +168,7 @@ export function EmneNav({ emne }: EmneNavProps) {
         {/* Back to Global Navigation */}
         <div className="border-t-2 border-gray-200 pt-6">
           <Link
-            href="/emner"
+            href="/dashboard/emner"
             className="flex items-center px-4 py-3 text-base font-bold text-gray-700 rounded-2xl hover:bg-gray-50 hover:border-gray-200 border-2 border-transparent transition-all duration-200 group"
           >
             <div className="w-8 h-8 bg-gray-100 rounded-xl flex items-center justify-center mr-3 group-hover:bg-gray-200 transition-colors duration-200">

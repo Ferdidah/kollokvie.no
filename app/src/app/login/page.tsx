@@ -71,12 +71,8 @@ export default function LoginPage() {
       
       if (error) throw error
 
-      if (data?.user) {
-        await supabase.from('profiles').insert([
-          { id: data.user.id, username }
-        ])
-      }
-
+      // Profile will be created automatically by database trigger (if profiles table exists)
+      // Username is also stored in user_metadata
       alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
     } catch (err: any) {
       alert(err.message ?? 'Feil ved registrering')

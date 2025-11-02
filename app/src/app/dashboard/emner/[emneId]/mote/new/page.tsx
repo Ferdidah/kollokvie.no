@@ -54,7 +54,7 @@ export default function NewMeetingPage({ params }: NewMeetingPageProps) {
       if (meetingError) throw meetingError
 
       // Redirect to the meeting page
-      router.push(`/emner/${emneId}/mote/${meeting.id}`)
+      router.push(`/dashboard/emner/${emneId}/mote/${meeting.id}`)
       
     } catch (error: any) {
       console.error('Error creating meeting:', error)

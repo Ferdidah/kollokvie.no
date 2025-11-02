@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { RotatingLeaderWrapper } from '@/components/meetings/RotatingLeaderWrapper'
 import { LiveNotes } from '@/components/meetings/LiveNotes'
+import { MeetingMembers } from '@/components/meetings/MeetingMembers'
 import type { Meeting, EmneMember } from '@/types/database'
 
 interface MeetingPageProps {
@@ -86,7 +87,7 @@ export default async function MeetingPage({ params }: MeetingPageProps) {
         <div>
           <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
             <Link 
-              href={`/emner/${emneId}/mote`}
+              href={`/dashboard/emner/${emneId}/mote`}
               className="hover:text-blue-600 transition-colors duration-200"
             >
               Møter
@@ -202,33 +203,14 @@ export default async function MeetingPage({ params }: MeetingPageProps) {
           <RotatingLeaderWrapper 
             members={members || []}
             currentLeader={meeting.meeting_leader}
+            emneId={emneId}
           />
 
           {/* Group Members */}
-          <div className="bg-white border-2 border-blue-100 shadow-xl rounded-2xl p-6">
-            <h3 className="text-lg font-bold text-black mb-4">Medlemmer</h3>
-            <div className="space-y-3">
-              {members?.map((member) => (
-                <div key={member.id} className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <span className="text-gray-600 font-bold text-sm">
-                      {member.user?.email?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-bold text-black text-sm">
-                      {member.user?.email?.split('@')[0]}
-                    </p>
-                    <p className="text-gray-600 text-xs">
-                      {member.role === 'admin' ? 'Administrator' : 
-                       member.role === 'leader' ? 'Leder' : 'Medlem'}
-                    </p>
-                  </div>
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <MeetingMembers 
+            emneId={emneId}
+            initialMembers={members || []}
+          />
 
           {/* Meeting Tasks */}
           <div className="bg-white border-2 border-blue-100 shadow-xl rounded-2xl p-6">

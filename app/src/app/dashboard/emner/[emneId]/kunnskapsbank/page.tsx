@@ -176,7 +176,7 @@ export default async function KnowledgeBasePage({ params }: KnowledgeBasePagePro
       {masterDocs && masterDocs.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {masterDocs.map((doc) => (
-            <Link key={doc.id} href={`/emner/${emneId}/kunnskapsbank/${doc.id}`}>
+            <Link key={doc.id} href={`/dashboard/emner/${emneId}/kunnskapsbank/${doc.id}`}>
               <div className="bg-white border-2 border-blue-100 shadow-xl rounded-2xl p-6 hover:shadow-2xl transition-all duration-200 hover:border-blue-200 transform hover:scale-105 cursor-pointer h-full">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">

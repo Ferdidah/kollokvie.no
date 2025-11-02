@@ -63,7 +63,7 @@ export default async function DocumentViewPage({ params }: DocumentViewPageProps
         <div>
           <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
             <Link 
-              href={`/emner/${params.emneId}/kunnskapsbank`}
+              href={`/dashboard/emner/${params.emneId}/kunnskapsbank`}
               className="hover:text-blue-600 transition-colors duration-200"
             >
               Kunnskapsbank
