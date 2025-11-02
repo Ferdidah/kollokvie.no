@@ -56,12 +56,7 @@ export default async function EmnerPage() {
   }
 
   return (
-<<<<<<< HEAD
-    <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
-      <div className="flex-grow p-6 md:overflow-y-auto md:p-12">
-=======
     <>
->>>>>>> 7216b7dc85a83c432d7ab458814923846d9fbebc
         {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>

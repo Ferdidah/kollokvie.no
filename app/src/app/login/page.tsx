@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<{ username: string } | null>(null)
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
 
@@ -34,6 +35,26 @@ export default function LoginPage() {
       listener?.subscription?.unsubscribe()
     }
   }, [supabase, router])
+
+  useEffect(() => {
+    if (!user) return;
+
+    async function fetchProfile() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .maybeSingle()
+      
+      if (error) {
+        console.error('Error fetching profile:', error)
+      } else {
+        setProfile(data)
+      }
+    }
+
+    fetchProfile()
+  }, [user])
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault()
@@ -66,8 +87,25 @@ export default function LoginPage() {
         .select('id')
         .eq('username', username)
         .maybeSingle()
+      
+      if (existingProfile) {
+        alert('Brukernavnet er allerede tatt. Vennligst velg et annet.')
+        return
+      }
 
-      // Profile will be created automatically by database trigger (if profiles table exists)
+      //Create user
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: { username } // Store username in user_metadata
+        }
+      })  
+
+      if (error) throw error
+
+      await supabase.from('profiles').insert({ id: data.user?.id, username })
+
       // Username is also stored in user_metadata
       alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
     } catch (err: any) {

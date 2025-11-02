@@ -15,30 +15,22 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-<<<<<<< HEAD
-  //Fetch user's profile information
-  const {data: profile, error: profileError} = await supabase
+  // Fetch user profile
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('username, email')
+    .select('username')
     .eq('id', user.id)
     .single()
 
-  if (profileError) {
-    console.error('Kunne ikke hente profil:', profileError)
+    if (profileError) {
+    console.error('Error fetching user profile:', profileError)
   }
 
-  // Fetch user's notes and todos
-  const { data: notes, error: notesError } = await supabase
-    .from('notes')
-    .select('*')
-    .order('updated_at', { ascending: false })
-=======
   // Fetch user's emne memberships
   const { data: emneMemberships, error: membershipsError } = await supabase
     .from('emne_members')
     .select('emne_id, role')
     .eq('user_id', user.id)
->>>>>>> 7216b7dc85a83c432d7ab458814923846d9fbebc
 
   if (membershipsError) {
     console.error('Error fetching emne memberships:', membershipsError)
