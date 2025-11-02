@@ -67,39 +67,8 @@ export default function LoginPage() {
         .eq('username', username)
         .maybeSingle()
 
-      if (existingProfile) {
-        alert('Brukernavnet er allerede tatt. Vennligst velg et annet.')
-        setLoading(false)
-        return
-    }
-
-    //Create the authenication user
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
-      }
-    })
-
-    if (error) throw error
-
-    if (data?.user) {
-      //Create the profile record
-      const { error: profileError } = await supabase.from('profiles').insert([
-        {
-          id: data.user.id,
-          username,
-          email
-        }
-      ])
-
-      if (profileError) {
-        console.error('Feil ved oppretting av profil:', profileError)
-        alert(`Feil ved oppretting av profil: ${profileError.message}`)
-      }
-    }
-
+      // Profile will be created automatically by database trigger (if profiles table exists)
+      // Username is also stored in user_metadata
       alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
     } catch (err: any) {
       console.error('Registreringsfeil:', err)

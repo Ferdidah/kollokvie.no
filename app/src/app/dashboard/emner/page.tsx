@@ -23,6 +23,9 @@ export default async function EmnerPage() {
 
   if (membershipsError) {
     console.error('Error fetching emne memberships:', membershipsError)
+    console.error('Error code:', membershipsError.code)
+    console.error('Error message:', membershipsError.message)
+    console.error('Error details:', JSON.stringify(membershipsError, null, 2))
   }
 
   // Fetch emne details separately to avoid RLS recursion
@@ -36,16 +39,36 @@ export default async function EmnerPage() {
     console.error('Error fetching emner:', emnerError)
   }
 
+  // Fetch member counts for each emne
+  const memberCountsMap: Record<string, number> = {}
+  if (emneIds.length > 0) {
+    const { data: allMemberships } = await supabase
+      .from('emne_members')
+      .select('emne_id')
+      .in('emne_id', emneIds)
+
+    // Count members per emne
+    if (allMemberships) {
+      allMemberships.forEach((membership) => {
+        memberCountsMap[membership.emne_id] = (memberCountsMap[membership.emne_id] || 0) + 1
+      })
+    }
+  }
+
   return (
+<<<<<<< HEAD
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       <div className="flex-grow p-6 md:overflow-y-auto md:p-12">
+=======
+    <>
+>>>>>>> 7216b7dc85a83c432d7ab458814923846d9fbebc
         {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl font-black text-black tracking-tight">Mine Emner</h1>
           <p className="mt-3 text-lg text-black font-medium">Hei, {user.email?.split('@')[0]} 👋</p>
         </div>
-        <Link href="/emner/new">
+        <Link href="/dashboard/emner/new">
           <button className="inline-flex items-center px-6 py-3 border-2 border-transparent shadow-lg text-base font-bold rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -110,7 +133,7 @@ export default async function EmnerPage() {
       {emner.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {emner.map((emne) => (
-            <Link key={emne.id} href={`/emner/${emne.id}`}>
+            <Link key={emne.id} href={`/dashboard/emner/${emne.id}`}>
               <div className="bg-white border-2 border-blue-100 shadow-xl rounded-3xl p-8 hover:shadow-2xl transition-all duration-200 hover:border-blue-200 transform hover:scale-105 cursor-pointer h-full">
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex items-center space-x-4">
@@ -137,13 +160,19 @@ export default async function EmnerPage() {
                   </p>
                 )}
 
-                <div className="flex items-center justify-between text-sm text-gray-600 font-medium">
+                <div className="flex items-center justify-between text-sm text-gray-600 font-medium mb-4">
                   <span>Opprettet {new Date(emne.created_at).toLocaleDateString('nb-NO')}</span>
                   <div className="flex items-center space-x-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
+                </div>
+                <div className="flex items-center text-sm text-gray-600 font-medium">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
+                  <span>{memberCountsMap[emne.id] || 0} {memberCountsMap[emne.id] === 1 ? 'medlem' : 'medlemmer'}</span>
                 </div>
               </div>
             </Link>
@@ -160,7 +189,7 @@ export default async function EmnerPage() {
           <p className="text-black font-medium mb-6">
             Opprett ditt første emne for å komme i gang med kollokvie-gruppen din.
           </p>
-          <Link href="/emner/new">
+          <Link href="/dashboard/emner/new">
             <button className="inline-flex items-center px-6 py-3 border-2 border-transparent shadow-lg text-base font-bold rounded-2xl text-white bg-blue-600 hover:bg-blue-700 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -170,8 +199,7 @@ export default async function EmnerPage() {
           </Link>
         </div>
       )}
-      </div>
-    </div>
+    </>
   )
 }
 

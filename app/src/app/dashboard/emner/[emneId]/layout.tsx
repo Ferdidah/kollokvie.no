@@ -43,9 +43,11 @@ export default async function EmneLayout({ children, params }: EmneLayoutProps) 
     .single()
 
   if (!membership) {
-    redirect('/emner')
+    redirect('/dashboard/emner')
   }
 
+  // Replace the dashboard layout's GlobalNav with EmneNav
+  // The dashboard layout already provides the outer structure
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       <div className="w-full flex-none md:w-64">

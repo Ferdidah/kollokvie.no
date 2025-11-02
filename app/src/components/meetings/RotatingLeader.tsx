@@ -53,12 +53,12 @@ export function RotatingLeader({ members, currentLeader, onAssignLeader, onRotat
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
             <span className="text-blue-600 font-bold text-sm">
-              {currentLeaderMember.user_id.slice(0, 2).toUpperCase()}
+              {(currentLeaderMember as any).email?.charAt(0).toUpperCase() || currentLeaderMember.user_id.slice(0, 2).toUpperCase()}
             </span>
           </div>
           <div>
             <p className="font-bold text-black text-sm">
-              User {currentLeaderMember.user_id.slice(0, 8)}
+              {(currentLeaderMember as any).email?.split('@')[0] || `User ${currentLeaderMember.user_id.slice(0, 8)}`}
             </p>
             <p className="text-gray-600 text-xs">Nåværende leder</p>
           </div>
@@ -89,12 +89,12 @@ export function RotatingLeader({ members, currentLeader, onAssignLeader, onRotat
                 >
                   <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
                     <span className="text-gray-600 font-bold text-sm">
-                      {member.user_id.slice(0, 2).toUpperCase()}
+                      {(member as any).email?.charAt(0).toUpperCase() || member.user_id.slice(0, 2).toUpperCase()}
                     </span>
                   </div>
                   <div className="text-left">
                     <p className="font-bold text-black text-sm">
-                      User {member.user_id.slice(0, 8)}
+                      {(member as any).email?.split('@')[0] || `User ${member.user_id.slice(0, 8)}`}
                     </p>
                     <p className="text-gray-600 text-xs">
                       {member.role === 'admin' ? 'Administrator' : 
@@ -124,11 +124,11 @@ export function RotatingLeader({ members, currentLeader, onAssignLeader, onRotat
             <div key={member.id} className="flex items-center space-x-2 text-xs">
               <div className="w-4 h-4 bg-gray-100 rounded-full flex items-center justify-center">
                 <span className="text-gray-600 font-bold text-xs">
-                  {member.user_id.slice(0, 1).toUpperCase()}
+                  {(member as any).email?.charAt(0).toUpperCase() || member.user_id.slice(0, 1).toUpperCase()}
                 </span>
               </div>
               <span className="text-gray-600">
-                User {member.user_id.slice(0, 8)} - Møte {index + 1}
+                {(member as any).email?.split('@')[0] || `User ${member.user_id.slice(0, 8)}`} - Møte {index + 1}
               </span>
             </div>
           ))}

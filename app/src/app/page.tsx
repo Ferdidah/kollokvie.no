@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="max-w-4xl mx-auto text-center">
         {/* Hero Section */}
         <div className="bg-white rounded-3xl shadow-xl p-12 mb-8">
@@ -60,7 +60,7 @@ export default function Page() {
             </Link>
             
             <Link
-              href="/emner"
+              href="/dashboard/emner"
               className="inline-flex items-center justify-center py-4 px-8 rounded-2xl text-lg font-bold text-black bg-white border-2 border-gray-200 hover:border-indigo-300 hover:bg-gray-50 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               Se Mine Emner

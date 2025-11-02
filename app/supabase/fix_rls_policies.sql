@@ -14,21 +14,50 @@ DROP POLICY IF EXISTS "Users can update their own membership" ON public.emne_mem
 -- STEP 2: Create fixed policies for emne_members
 -- =====================================================
 
--- Policy for viewing emne members - use emne ownership instead of membership check
+-- Policy for viewing emne members - allow members to see all members of their emner
 CREATE POLICY "Users can view emne members" ON public.emne_members
     FOR SELECT USING (
+        -- Users can always see their own memberships (needed for dashboard queries)
+        user_id = auth.uid()
+        OR
         -- Users can see members of emne they created
         emne_id IN (
             SELECT id FROM public.emne WHERE created_by = auth.uid()
         )
         OR
-        -- Users can see members of emne they are already members of (but avoid recursion)
-        user_id = auth.uid()
+        -- Users can see ALL members of emne they are members of
+        -- Use EXISTS with different alias to avoid recursion
+        EXISTS (
+            SELECT 1 FROM public.emne_members em
+            WHERE em.emne_id = emne_members.emne_id
+            AND em.user_id = auth.uid()
+        )
     );
 
+-- Drop existing policy first
+DROP POLICY IF EXISTS "Users can join emne" ON public.emne_members;
+
 -- Policy for joining emne - allow users to join any emne (they'll be validated by application logic)
+-- Also allow emne creators and admins to add members
 CREATE POLICY "Users can join emne" ON public.emne_members
-    FOR INSERT WITH CHECK (user_id = auth.uid());
+    FOR INSERT WITH CHECK (
+        -- Users can add themselves
+        user_id = auth.uid()
+        OR
+        -- Emne creators can add anyone
+        emne_id IN (
+            SELECT id FROM public.emne WHERE created_by = auth.uid()
+        )
+        OR
+        -- Admins can add anyone (check in a separate query to avoid recursion)
+        -- In INSERT WITH CHECK, unqualified column names refer to the new row being inserted
+        EXISTS (
+            SELECT 1 FROM public.emne_members em
+            WHERE em.emne_id = emne_id  -- emne_id from the new row (unqualified)
+            AND em.user_id = auth.uid()
+            AND em.role = 'admin'
+        )
+    );
 
 -- Policy for updating membership - users can update their own membership
 CREATE POLICY "Users can update their own membership" ON public.emne_members

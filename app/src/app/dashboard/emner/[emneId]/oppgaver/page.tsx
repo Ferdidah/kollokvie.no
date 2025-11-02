@@ -1,4 +1,61 @@
-export default function TasksPage() {
+import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { CreateTask } from '@/components/emner/CreateTask'
+import { TaskList } from '@/components/emner/TaskList'
+import type { Task } from '@/types/database'
+
+interface TasksPageProps {
+  params: Promise<{
+    emneId: string
+  }>
+}
+
+export default async function TasksPage({ params }: TasksPageProps) {
+  const { emneId } = await params
+  const cookieStore = cookies()
+  const supabase = createClient(cookieStore)
+
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  // Fetch emne details to verify access
+  const { data: emne, error: emneError } = await supabase
+    .from('emne')
+    .select('*')
+    .eq('id', emneId)
+    .single()
+
+  if (emneError || !emne) {
+    redirect('/dashboard/emner')
+  }
+
+  // Check if user is a member
+  const { data: membership } = await supabase
+    .from('emne_members')
+    .select('role')
+    .eq('emne_id', emneId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!membership) {
+    redirect('/dashboard/emner')
+  }
+
+  // Fetch all tasks for this emne (all members can see all tasks)
+  const { data: tasks, error: tasksError } = await supabase
+    .from('tasks')
+    .select('*')
+    .eq('emne_id', emneId)
+    .order('created_at', { ascending: false })
+
+  if (tasksError) {
+    console.error('Error fetching tasks:', tasksError)
+  }
+
   return (
     <div>
       <div className="mb-8">
@@ -8,18 +65,13 @@ export default function TasksPage() {
         </p>
       </div>
 
-      <div className="text-center py-16">
-        <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-          </svg>
-        </div>
-        <h3 className="text-xl font-bold text-black mb-2">Oppgavesystem kommer snart</h3>
-        <p className="text-black font-medium">
-          Her vil du kunne administrere felles og personlige oppgaver med avanserte filtre.
-        </p>
-      </div>
+      <CreateTask emneId={emneId} />
+
+      <TaskList 
+        emneId={emneId}
+        initialTasks={(tasks || []) as Task[]}
+        currentUserId={user.id}
+      />
     </div>
   )
 }
-
