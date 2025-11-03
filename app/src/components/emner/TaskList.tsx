@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import type { Task } from '@/types/database'
@@ -21,15 +21,21 @@ export function TaskList({ emneId, initialTasks, currentUserId }: TaskListProps)
   const [statusFilter, setStatusFilter] = useState<FilterStatus>('all')
   const [ownershipFilter, setOwnershipFilter] = useState<FilterOwnership>('all')
   const [priorityFilter, setPriorityFilter] = useState<FilterPriority>('all')
+  const [error, setError] = useState<string | null>(null)
   
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
 
   // Fetch tasks when filters change or component mounts
   useEffect(() => {
     const fetchTasks = async () => {
       setLoading(true)
+      setError(null)
       try {
+        if (!supabase) {
+          throw new Error('Supabase client not initialized')
+        }
+
         let query = supabase
           .from('tasks')
           .select('*')
@@ -54,20 +60,22 @@ export function TaskList({ emneId, initialTasks, currentUserId }: TaskListProps)
           query = query.eq('priority', priorityFilter)
         }
 
-        const { data, error } = await query
+        const { data, error: queryError } = await query
 
-        if (error) throw error
+        if (queryError) throw queryError
         setTasks(data || [])
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching tasks:', err)
+        setError(err.message || 'Kunne ikke laste oppgaver')
+        // Keep current tasks if fetch fails, only use initialTasks if we have no tasks
+        setTasks((currentTasks) => currentTasks.length === 0 ? initialTasks : currentTasks)
       } finally {
         setLoading(false)
       }
     }
 
     fetchTasks()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [emneId, statusFilter, ownershipFilter, priorityFilter, currentUserId])
+  }, [emneId, statusFilter, ownershipFilter, priorityFilter, currentUserId, supabase, initialTasks])
 
   const updateTaskStatus = async (taskId: string, newStatus: Task['status']) => {
     try {
@@ -145,6 +153,11 @@ export function TaskList({ emneId, initialTasks, currentUserId }: TaskListProps)
 
   return (
     <div>
+      {error && (
+        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+          <p className="text-red-800 font-medium">{error}</p>
+        </div>
+      )}
       {/* Filters */}
       <div className="bg-white border-2 border-gray-100 rounded-xl p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

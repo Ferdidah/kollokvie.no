@@ -32,8 +32,8 @@ export function EmneDeletion({ emneId, emneTitle, isCreator }: EmneDeletionProps
 
       if (error) throw error
 
-      // Success - redirect to emner list
-      router.push('/emner')
+      // Success - redirect to dashboard emner list
+      router.push('/dashboard/emner')
       
     } catch (error: any) {
       console.error('Error deleting emne:', error)

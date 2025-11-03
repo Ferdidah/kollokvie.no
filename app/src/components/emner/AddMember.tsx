@@ -38,7 +38,21 @@ export function AddMember({ emneId, isCreator }: AddMemberProps) {
       })
 
       if (rpcError) {
-        throw new Error(rpcError.message)
+        // Provide user-friendly error messages
+        let errorMessage = rpcError.message || 'Kunne ikke legge til medlem'
+        
+        // Make error messages more user-friendly
+        if (errorMessage.includes('not found') || errorMessage.includes('User with email')) {
+          errorMessage = `Bruker med e-post ${email.trim()} finnes ikke i systemet. Brukeren må registrere seg først.`
+        } else if (errorMessage.includes('already a member')) {
+          errorMessage = 'Denne brukeren er allerede medlem av emnet.'
+        } else if (errorMessage.includes('Only emne creators or admins')) {
+          errorMessage = 'Kun emne-opprettere eller administratorer kan legge til medlemmer.'
+        }
+        
+        setError(errorMessage)
+        setLoading(false)
+        return
       }
 
       setSuccess(true)

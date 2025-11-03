@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/utils/supabase/client'
-import { aiService, type AIPrompt } from '@/lib/ai-service'
+import { useRouter } from 'next/navigation'
 
 interface DocumentGeneratorProps {
   emneId: string
@@ -12,73 +11,54 @@ interface DocumentGeneratorProps {
 export function DocumentGenerator({ emneId, onDocumentGenerated }: DocumentGeneratorProps) {
   const [loading, setLoading] = useState(false)
   const [prompt, setPrompt] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const [generationType, setGenerationType] = useState<'synthesize' | 'questions' | 'analysis'>('synthesize')
-  const supabase = createClient()
+  const router = useRouter()
 
   const handleGenerate = async () => {
     setLoading(true)
+    setError(null)
     
     try {
-      // Fetch recent contributions for context
-      const { data: contributions } = await supabase
-        .from('contributions')
-        .select('*')
-        .eq('emne_id', emneId)
-        .order('created_at', { ascending: false })
-        .limit(20)
+      // Map generation type to API type
+      const apiType = generationType === 'synthesize' ? 'synthesize_notes' : 
+                      generationType === 'questions' ? 'generate_questions' : 
+                      'analyze_knowledge_gaps'
 
-      // Fetch emne goals
-      const { data: emne } = await supabase
-        .from('emne')
-        .select('goals, title')
-        .eq('id', emneId)
-        .single()
+      // Call API route
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: apiType,
+          emneId,
+          prompt: prompt || undefined
+        })
+      })
 
-      // Prepare AI prompt
-      const aiPrompt: AIPrompt = {
-        type: generationType === 'synthesize' ? 'synthesize_notes' : 
-              generationType === 'questions' ? 'generate_questions' : 'analyze_knowledge_gaps',
-        context: prompt || `Synteser av notater for ${emne?.title || 'emnet'}`,
-        contributions: contributions?.map(c => c.content) || [],
-        emne_goals: emne?.goals || undefined
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate document')
       }
 
-      // Generate content with AI
-      const aiResponse = await aiService.generateMasterDocument(aiPrompt)
-
-      // Create master document
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Not authenticated')
-
-      const { data: newDoc, error } = await supabase
-        .from('master_documents')
-        .insert({
-          emne_id: emneId,
-          title: generationType === 'synthesize' ? `Masterdokument - ${emne?.title}` :
-                 generationType === 'questions' ? `Diskusjonsspørsmål - ${emne?.title}` :
-                 `Kunnskapsanalyse - ${emne?.title}`,
-          content: aiResponse.content,
-          ai_prompt: prompt || 'Standard syntese',
-          source_contributions: JSON.stringify(contributions?.map(c => c.id) || [])
-        })
-        .select()
-        .single()
-
-      if (error) throw error
+      const data = await response.json()
 
       // Reset form
       setPrompt('')
       
       // Notify parent component
       if (onDocumentGenerated) {
-        onDocumentGenerated(newDoc.id)
+        onDocumentGenerated(data.documentId)
       }
 
-      alert('Masterdokument generert successfully!')
+      // Refresh to show new document
+      router.refresh()
+      
+      alert('Dokument generert successfully!')
       
     } catch (error: any) {
       console.error('Error generating document:', error)
-      alert('Kunne ikke generere dokument: ' + (error.message || 'Ukjent feil'))
+      setError(error.message || 'Ukjent feil')
     } finally {
       setLoading(false)
     }
@@ -140,6 +120,14 @@ export function DocumentGenerator({ emneId, onDocumentGenerated }: DocumentGener
           )}
         </button>
       </div>
+
+      {error && (
+        <div className="mt-4 p-3 bg-red-50 border-2 border-red-200 rounded-xl">
+          <p className="text-red-800 font-medium text-sm">
+            ⚠️ {error}
+          </p>
+        </div>
+      )}
 
       <div className="mt-4 p-3 bg-blue-50 border-2 border-blue-200 rounded-xl">
         <p className="text-blue-800 font-medium text-sm">

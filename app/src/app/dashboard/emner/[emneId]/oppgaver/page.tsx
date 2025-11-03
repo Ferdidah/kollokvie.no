@@ -5,6 +5,8 @@ import { CreateTask } from '@/components/emner/CreateTask'
 import { TaskList } from '@/components/emner/TaskList'
 import type { Task } from '@/types/database'
 
+export const dynamic = 'force-dynamic' // Ensure data is always fresh
+
 interface TasksPageProps {
   params: Promise<{
     emneId: string

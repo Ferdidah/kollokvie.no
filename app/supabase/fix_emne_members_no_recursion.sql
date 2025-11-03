@@ -1,22 +1,29 @@
 -- Fix RLS Policy for emne_members with NO RECURSION
 -- Uses a SECURITY DEFINER function to check membership without triggering RLS
+-- Run this in Supabase SQL Editor
+
+-- IMPORTANT: This fixes infinite recursion by using a helper function
 
 -- =====================================================
--- STEP 1: Create a helper function that bypasses RLS
+-- STEP 1: Drop policies FIRST (they depend on the function)
 -- =====================================================
 
--- Drop existing function if it exists
+DROP POLICY IF EXISTS "Users can view emne members" ON public.emne_members;
+DROP POLICY IF EXISTS "Users can view emne members of emne they belong to" ON public.emne_members;
+
+-- =====================================================
+-- STEP 2: Now we can drop and recreate the function
+-- =====================================================
+
 DROP FUNCTION IF EXISTS public.user_is_emne_member(UUID, UUID);
 
--- Create a function that checks membership without triggering RLS recursion
--- SECURITY DEFINER allows it to bypass RLS when checking
 CREATE OR REPLACE FUNCTION public.user_is_emne_member(
     p_user_id UUID,
     p_emne_id UUID
 )
 RETURNS BOOLEAN
 LANGUAGE plpgsql
-SECURITY DEFINER -- This bypasses RLS
+SECURITY DEFINER -- Bypasses RLS to avoid recursion
 STABLE
 AS $$
 BEGIN
@@ -29,23 +36,15 @@ BEGIN
 END;
 $$;
 
--- Grant execute permission
 GRANT EXECUTE ON FUNCTION public.user_is_emne_member(UUID, UUID) TO authenticated;
 
 -- =====================================================
--- STEP 2: Drop old policies
--- =====================================================
-
-DROP POLICY IF EXISTS "Users can view emne members" ON public.emne_members;
-DROP POLICY IF EXISTS "Users can view emne members of emne they belong to" ON public.emne_members;
-
--- =====================================================
--- STEP 3: Create new policy using the helper function
+-- STEP 3: Create new policy using helper function
 -- =====================================================
 
 CREATE POLICY "Users can view emne members" ON public.emne_members
     FOR SELECT USING (
-        -- Users can always see their own memberships
+        -- Users can always see their own memberships (needed for dashboard queries)
         user_id = auth.uid()
         OR
         -- Users can see all members of emner they created
@@ -54,7 +53,7 @@ CREATE POLICY "Users can view emne members" ON public.emne_members
         )
         OR
         -- Users can see all members of emner they belong to
-        -- Use the SECURITY DEFINER function to avoid recursion
+        -- Use SECURITY DEFINER function to avoid recursion
         public.user_is_emne_member(auth.uid(), emne_id) = TRUE
     );
 
@@ -65,7 +64,6 @@ CREATE POLICY "Users can view emne members" ON public.emne_members
 DO $$
 BEGIN
     RAISE NOTICE '✅ Fixed emne_members RLS policy with NO RECURSION';
-    RAISE NOTICE '✅ Created helper function: user_is_emne_member';
+    RAISE NOTICE '✅ Dropped and recreated helper function: user_is_emne_member';
     RAISE NOTICE '✅ Policy now uses SECURITY DEFINER function to avoid recursion';
 END $$;
-
