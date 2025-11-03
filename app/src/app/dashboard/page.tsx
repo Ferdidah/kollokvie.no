@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Emne } from '@/types/database'
 
+// Disable static caching to ensure memberships appear immediately
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const cookieStore = cookies()
   const supabase = createClient(cookieStore)
