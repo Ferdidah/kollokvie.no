@@ -105,6 +105,8 @@ export default function LoginPage() {
       if (error) throw error
 
       await supabase.from('profiles').insert({ id: data.user?.id, username })
+      await supabase.from('profiles').insert({ id: data.user?.id, email })
+
 
       // Username is also stored in user_metadata
       alert('Registrering vellykket! Vennligst sjekk e-posten din for å bekrefte kontoen.')
