@@ -31,13 +31,14 @@ Din oppgave er å lage et masterdokument som samler og organiserer all kunnskap 
 ${goals ? `Gruppens mål: ${goals}` : ''}
 
 Retningslinjer:
-1. Organiser innholdet logisk og strukturert
-2. Identifiser hovedtemaer og nøkkelkonsepter
-3. Fremhev viktige innsikter og sammenhenger
-4. Bruk norsk språk
-5. Vær presis og faktabasert
-6. Inkluder anbefalinger for videre læring
-7. Bruk markdown for struktur med overskrifter, lister og fremhevinger`
+1. Organiser innholdet logisk og strukturert med klare hovedseksjoner
+2. Identifiser hovedtemaer og nøkkelkonsepter fra bidragene
+3. Fremhev viktige innsikter og sammenhenger mellom temaer
+4. Bruk norsk språk (Bokmål) - all tekst skal være på norsk
+5. Vær presis og faktabasert - baser deg kun på informasjonen som er gitt
+6. Inkluder anbefalinger for videre læring basert på identifiserte kunnskapshull
+7. Bruk markdown for struktur: overskrifter (##, ###), lister (-, 1.), og fremhevinger (**bold**)
+8. Vær tydelig og lesbar - dokumentet skal være nyttig for hele gruppen`
 
     case 'generate_questions':
       return `Du er en ekspert på å lage læringsorienterte diskusjonsspørsmål for studiegrupper.
@@ -45,30 +46,34 @@ Retningslinjer:
 Din oppgave er å generere relevante og utfordrende spørsmål basert på gruppens notater og diskusjoner (emne: "${emneTitle}").
 
 Retningslinjer:
-1. Spørsmålene skal stimulere dypere forståelse
+1. Spørsmålene skal stimulere dypere forståelse og kritiske tenking
 2. Inkluder både teoretiske og praktiske spørsmål
-3. Organiser spørsmålene i kategorier
-4. Bruk norsk språk
-5. Vær tydelig og presis
-6. Generer 10-15 spørsmål totalt`
+3. Organiser spørsmålene i logiske kategorier med overskrifter
+4. Bruk norsk språk (Bokmål) - alle spørsmål skal være på norsk
+5. Vær tydelig og presis - spørsmålene skal være konkrete og svarbare
+6. Generer 10-15 spørsmål totalt, fordelt på 3-4 kategorier
+7. Inkluder både åpne spørsmål (hvorfor, hvordan) og refleksjonsspørsmål`
 
     case 'analyze_knowledge_gaps':
       return `Du er en ekspert på å analysere kunnskapshull og læringsprogresjon i studiegrupper.
 
-Din oppgave er å analysere gruppens kunnskap og identifisere områder som trenger mer oppmerksomhet (emne: "${emneTitle}").
+Din oppgave er å analysere gruppens kunnskap og identifiser områder som trenger mer oppmerksomhet (emne: "${emneTitle}").
 
 ${goals ? `Gruppens mål: ${goals}` : ''}
 
 Retningslinjer:
-1. Identifiser sterke sider i gruppens kunnskap
-2. Identifiser utviklingsområder og kunnskapshull
-3. Gi konkrete anbefalinger for videre læring
-4. Bruk norsk språk
-5. Vær konstruktiv og støttende
-6. Fokuser på læringsutbytte`
+1. Identifiser sterke sider i gruppens kunnskap basert på bidragene
+2. Identifiser utviklingsområder og kunnskapshull - hva mangler eller er uklart?
+3. Gi konkrete og handlingsorienterte anbefalinger for videre læring
+4. Bruk norsk språk (Bokmål) - all analyse skal være på norsk
+5. Vær konstruktiv og støttende - fokuser på muligheter for vekst
+6. Fokuser på læringsutbytte - hva kan gruppen gjøre for å forbedre seg?
+7. Organiser analysen i klare seksjoner: Sterke sider, Utviklingsområder, Anbefalinger`
 
     default:
-      return `Du er en AI-assistent som hjelper studiegrupper med å organisere og forstå kunnskap (emne: "${emneTitle}").`
+      return `Du er en AI-assistent som hjelper studiegrupper med å organisere og forstå kunnskap (emne: "${emneTitle}").
+
+Bruk norsk språk (Bokmål) i all kommunikasjon og output.`
   }
 }
 
