@@ -81,6 +81,22 @@ export default async function DashboardPage() {
     }
   }
 
+  // Fetch member counts for each emne
+  const memberCountsMap: Record<string, number> = {}
+  if (emneIds.length > 0) {
+    const { data: allMemberships } = await supabase
+      .from('emne_members')
+      .select('emne_id')
+      .in('emne_id', emneIds)
+
+    // Count members per emne
+    if (allMemberships) {
+      allMemberships.forEach((membership) => {
+        memberCountsMap[membership.emne_id] = (memberCountsMap[membership.emne_id] || 0) + 1
+      })
+    }
+  }
+
   return (
     <>
       {/* Header */}
@@ -192,6 +208,12 @@ export default async function DashboardPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
+                </div>
+                <div className="flex items-center text-sm text-gray-600 font-medium">
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                  </svg>
+                  <span>{memberCountsMap[emne.id] || 0} {memberCountsMap[emne.id] === 1 ? 'medlem' : 'medlemmer'}</span>
                 </div>
               </div>
             </Link>
