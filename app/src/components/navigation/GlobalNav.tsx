@@ -27,7 +27,7 @@ export default function GlobalNav() {
     <nav className="flex flex-col h-full bg-gradient-to-b from-white to-gray-50 border-r-2 border-blue-100 shadow-lg">
       {/* Header */}
       <div className="flex items-center justify-center h-20 border-b-2 border-blue-100 bg-gradient-to-r from-indigo-600 to-blue-600 mx-4 mt-4 rounded-2xl shadow-lg">
-        <Link href="/dashboard" className="text-white font-black text-lg tracking-tight">
+        <Link href="/dashboard/emner" className="text-white font-black text-lg tracking-tight">
           📚 Kollokvie.no
         </Link>
       </div>
@@ -35,7 +35,7 @@ export default function GlobalNav() {
       <div className="flex-1 flex flex-col justify-between p-6">
         {/* Navigation Menu */}
         <nav className="space-y-3 mt-4">
-          <Link
+          {/* <Link
             href="/dashboard/emner"
             className="flex items-center px-4 py-3 text-base font-bold text-black rounded-2xl hover:bg-blue-50 hover:border-blue-200 border-2 border-transparent transition-all duration-200 group"
           >
@@ -45,7 +45,7 @@ export default function GlobalNav() {
               </svg>
             </div>
             Mine Emner
-          </Link>
+          </Link> */}
           
           <Link
             href="/dashboard/upcoming-meetings"

@@ -27,7 +27,7 @@ export default function LoginPage() {
     const { data: listener } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        router.push('/dashboard') // Redirect to dashboard after login
+        router.push('/dashboard/emner') // Redirect to emner-page after login
       }
     })
 
@@ -149,7 +149,7 @@ export default function LoginPage() {
           
           <div className="space-y-4">
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push('/dashboard/emner')}
               className="w-full flex items-center justify-center py-4 px-6 border-2 border-transparent rounded-2xl shadow-lg text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
             >
               <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
